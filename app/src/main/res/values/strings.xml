@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">FCM Implementation</string>
+    <string name="notification_channel_id">general_notifications</string>
+    <string name="notification_channel_name">General Notifications</string>
+    <string name="notification_channel_description">Channel for general app notifications</string>
+    <string name="notification_channel">general notification</string>
+    <string name="fcm_default_channel">default</string>
+</resources>
