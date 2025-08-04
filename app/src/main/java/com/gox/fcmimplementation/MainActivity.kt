@@ -1,6 +1,7 @@
 package com.gox.fcmimplementation
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.activity.ComponentActivity
@@ -16,6 +17,7 @@ import com.google.firebase.messaging.FirebaseMessaging
 import com.gox.fcmimplementation.ui.theme.FCMImplementationTheme
 import dagger.hilt.android.AndroidEntryPoint
 import java.util.UUID
+import androidx.core.net.toUri
 
 data class NavigationEvent(
     val destination: String,
@@ -52,6 +54,11 @@ class MainActivity : ComponentActivity() {
         handleIntent(intent)
     }
 
+    fun getPageName(url: String): String? {
+        val lastSegment = url.toUri().lastPathSegment
+        // Split the segment at the '&' and take the first part ("profile")
+        return lastSegment?.split('&')?.firstOrNull()
+    }
     private fun handleIntent(intent: Intent?) {
         Log.d(TAG, "handleIntent dipanggil.")
 
@@ -68,13 +75,18 @@ class MainActivity : ComponentActivity() {
         }
 
         // Proses data spesifik yang kita cari
-        intent.getStringExtra("action_click")?.let { destination ->
-            Log.d(TAG, "✅ 'action_click' berhasil dibaca, nilainya: $destination")
-            if (destination.isNotBlank()) {
-                navigationEventState.value = NavigationEvent(destination)
-                intent.removeExtra("action_click")
+        intent.getStringExtra("deeplink")?.let { destination ->
+            Log.d(TAG, "✅ 'deeplink' berhasil dibaca, nilainya: $destination")
+
+            // This will now correctly return "profile"
+            val pageName = getPageName(destination)
+
+            if (pageName?.isNotBlank() == true) {
+                Log.d(TAG, "➡️ Navigasi ke rute: $pageName")
+                navigationEventState.value = NavigationEvent(pageName)
+                intent.removeExtra("deeplink")
             }
-        } ?: Log.d(TAG, "❌ 'action_click' tidak ditemukan di dalam extras.")
+        } ?: Log.d(TAG, "❌ 'deeplink' tidak ditemukan di dalam extras.")
     }
 }
 
